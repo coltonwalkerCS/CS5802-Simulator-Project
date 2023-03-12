@@ -37,7 +37,7 @@ def add_B_to_AQ(AQ, B):
 
     # Carry Bit
     carryBit = 0
-
+    XOR_Num = 0
     for i in range(sizeB):
         bitAQ = NEW_AQ[sizeAQ - sizeB - i]
         bitB = B[sizeB - i - 1]
@@ -45,7 +45,7 @@ def add_B_to_AQ(AQ, B):
         # Result bit will be carryBit + bitAQ + bitB
         resultBit, carry = XOR(bitAQ, bitB)
         resultBitFinal, carryTwo = XOR(resultBit, carryBit)
-
+        XOR_Num += 2
         # Set result into AQ
         NEW_AQ[sizeAQ - sizeB - i] = resultBitFinal
 
@@ -57,7 +57,7 @@ def add_B_to_AQ(AQ, B):
 
     NEW_AQ[0] = carryBit
 
-    return NEW_AQ
+    return NEW_AQ, XOR_Num
 
 
 # Add and shift function
@@ -78,20 +78,31 @@ def add_and_shift(multiplier, multiplicand):
     # Initialize AQ
     for i in range(len(multiplier)):
         AQ[size_AQ-len(multiplier)+i] = multiplier[i]
-
+    num_XOR = 0
+    num_Shift = 0
     for i in range(len(B)):
         # Check Q0 if 1 or 0
         if AQ[size_AQ-1]:
-            AQ = add_B_to_AQ(AQ, B)
+            AQ, XOR_OPS = add_B_to_AQ(AQ, B)
+            num_XOR += XOR_OPS
             AQ = shiftAQ(AQ)
+            num_Shift += 1
         else:
             AQ = shiftAQ(AQ)
+            num_Shift += 1
 
-    return AQ
+    return AQ, num_XOR, num_Shift
 
 
-test_multiplier = [0, 1, 1, 0]
+test_multiplier = [0, 0, 1, 0]
 test_multiplicand = [1, 1, 0, 0]
 
 print(test_multiplier, "*", test_multiplicand, '=')
-print(add_and_shift(test_multiplier, test_multiplicand))
+
+mult_result, numXOR, numShift = add_and_shift(test_multiplier, test_multiplicand)
+# Assuming xor is 2Dt
+# Assuming shift op is 3Dt
+
+
+print("Result: ", mult_result)
+print("Timing: ", 2 * numXOR + 3 * numShift, "DT")
