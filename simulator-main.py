@@ -2,13 +2,30 @@
 import math
 
 
-# Need to implement
-def FourBitFullAdder(Abits, Bbits, carryIn):
-    return
+# Four bit full adder implementation
+# Using logic gates to generate results
+# for the sum and carry
+# INPUT: Two 4-bit binary numbers and CarryIn
+# Output: Sum of 4-bit binary addition, carryOut
+def FourBitFullAdder(A_bits, B_bits, carryIn):
+
+    sum_one = XOR(XOR(A_bits[3], B_bits[3]), carryIn)
+    carry_one = OR(AND(XOR(A_bits[3], B_bits[3]), carryIn), AND(A_bits[3], B_bits[3]))
+    sum_two = XOR(XOR(A_bits[2], B_bits[2]), carry_one)
+    carry_two = OR(AND(XOR(A_bits[2], B_bits[2]), carry_one), AND(A_bits[2], B_bits[2]))
+    sum_three = XOR(XOR(A_bits[1], B_bits[1]), carry_two)
+    carry_three = OR(AND(XOR(A_bits[1], B_bits[1]), carry_two), AND(A_bits[1], B_bits[1]))
+    sum_four = XOR(XOR(A_bits[0], B_bits[0]), carry_three)
+    carry_final = OR(AND(XOR(A_bits[0], B_bits[0]), carry_three), AND(A_bits[0], B_bits[0]))
+
+    # Create the final representation of the F.A. summation
+    sum_bits = [sum_four, sum_three, sum_two, sum_one]
+
+    return sum_bits, carry_final
 
 
-# Need to implement
-def CarrySelect(binaryNumOne, binaryNumTwo):
+# Fast adder carry select implementation
+def FastAdderCarrySelect(binNumOne, binNumTwo):
     return
 
 
@@ -62,6 +79,7 @@ def iterativeBase(A, B, n):
 
     return
 
+
 def iterativeMethod(A, B, n):
     # Base case
     if n == 4:
@@ -110,22 +128,8 @@ def OR(bitOne, bitTwo):
 # Input: Two Bits
 # Output: Result bit and carry
 def XOR(bitOne, bitTwo):
-    # return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
-    # 1 1 or 0 0
-    if bitOne == bitTwo:
-        # If 1 1 else 0 0
-        if bitOne == 1:
-            result = 0
-            carry = 1
-        else:
-            result = 0
-            carry = 0
-    # If 1 0 or 0 1
-    else:
-        result = 1
-        carry = 0
-
-    return result, carry
+    # Returns the result and carry of the operation
+    return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 
 # Shift AQ
@@ -152,9 +156,14 @@ def add_B_to_AQ(AQ, B):
         bitB = B[sizeB - i - 1]
 
         # Result bit will be carryBit + bitAQ + bitB
-        resultBit, carry = XOR(bitAQ, bitB)
-        resultBitFinal, carryTwo = XOR(resultBit, carryBit)
+        resultBit = XOR(bitAQ, bitB)
+        carry = AND(bitAQ, bitB)
+
+        resultBitFinal = XOR(resultBit, carryBit)
+        carryTwo = AND(resultBit, carryBit)
+
         XOR_Num += 2
+
         # Set result into AQ
         NEW_AQ[sizeAQ - sizeB - i] = resultBitFinal
 
@@ -206,18 +215,27 @@ def add_and_shift(multiplier, multiplicand):
 test_multiplier = [0, 1, 0, 1]
 test_multiplicand = [1, 1, 0, 1]
 
-print(test_multiplier, "*", test_multiplicand, '=')
+# print(test_multiplier, "*", test_multiplicand, '=')
+#
+# mult_result, numXOR, numShift = add_and_shift(test_multiplier, test_multiplicand)
+# # Assuming xor is 2Dt
+# # Assuming shift op is 3Dt
+#
+#
+# print("Result: ", mult_result)
+# print("Timing: ", 2 * numXOR + 3 * numShift, "DT")
+#
+#
+# print("Iterative Method Testing")
+# A_Test = [0, 0, 1, 1, 0, 1]
+# B_Test = [0, 0, 1, 1, 1, 1]
+# print(iterativeMethod(iterativeMethodPrep(A_Test, B_Test)))
 
-mult_result, numXOR, numShift = add_and_shift(test_multiplier, test_multiplicand)
-# Assuming xor is 2Dt
-# Assuming shift op is 3Dt
+# FULL ADDER TESTING
+test_add_one = [1, 1, 1, 1]
+test_add_two = [1, 1, 1, 1]
 
+result, carry = FourBitFullAdder(test_add_one, test_add_two, 0)
+print(test_add_one, "+", test_add_two, "=", result)
+print("with carry: ", carry)
 
-print("Result: ", mult_result)
-print("Timing: ", 2 * numXOR + 3 * numShift, "DT")
-
-
-print("Iterative Method Testing")
-A_Test = [0, 0, 1, 1, 0, 1]
-B_Test = [0, 0, 1, 1, 1, 1]
-print(iterativeMethod(iterativeMethodPrep(A_Test, B_Test)))
