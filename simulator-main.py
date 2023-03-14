@@ -128,7 +128,6 @@ def OR(bitOne, bitTwo):
 # Input: Two Bits
 # Output: Result bit and carry
 def XOR(bitOne, bitTwo):
-    # Returns the result and carry of the operation
     return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 
