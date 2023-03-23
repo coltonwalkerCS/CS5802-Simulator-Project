@@ -445,37 +445,128 @@ def add_and_shift(multiplier, multiplicand):
 # Using X * Y = 2^n(ac) + 2^(n/2)(ad + bc) + bd, we can simplify the algorithm
 # 2^nX is the same as shifting a binary number, X, n spaces to the left
 # Therefore, find AD, BC, BD, and AC and follow the equation 
-# def iterativeMethod(A, B, n):
-#     # Base case
-#     if n == 4:
-#         return iterativeBase(A, B)
-#     else:
-#         # Recursive call
-#         n_div_two = int(n / 2)
-#         # 2^n iter(ac, n/2)
-#         AC, AC_Carry = iterativeMethod(A[0:n_div_two], B[0:n_div_two], n_div_two)
-#
-#         # 2^n/2 (iter(ad, n/2) + iter(bc, n/2)
-#         AD, AD_Carry = iterativeMethod(A[0:n_div_two], B[n_div_two:n], n_div_two)
-#         BC, BC_Carry = iterativeMethod(A[n_div_two:n], B[0:n_div_two], n_div_two)
-#
-#         # Take care of AD and BC Carry
-#         AD = [0, 0, 0] + [AD_Carry] + AD
-#         BC = [0, 0, 0] + [BC_Carry] + BC
-#
-#         AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
-#         AD_BC = AD_BC + [0, 0, 0, 0]
-#
-#         # + iter(bd, n/2)
-#         BD, BD_Carry = iterativeMethod(A[n_div_two:n], B[n_div_two:n], n_div_two)
-#
-#         # Fast adder
-#
-#         AC_BD = AC + BD
-#         # Make sure to implement w/ carry
-#
-#         return FastAdderCarrySelect(AC_BD, AD_BC, 0)
+def iterativeMethod(A, B, n):
+    # Base case
+    if n % 4 == 0:
+        return iterativeBase(A, B)
+    else:
+        # Recursive call
+        n_div_two = int(n / 2)
+        # 2^n iter(ac, n/2)
+        AC, AC_Carry = iterativeMethod(A[0:n_div_two], B[0:n_div_two], n_div_two)
 
+        # 2^n/2 (iter(ad, n/2) + iter(bc, n/2)
+        AD, AD_Carry = iterativeMethod(A[0:n_div_two], B[n_div_two:n], n_div_two)
+        BC, BC_Carry = iterativeMethod(A[n_div_two:n], B[0:n_div_two], n_div_two)
+
+        # Take care of AD and BC Carry
+        AD = [0, 0, 0] + [AD_Carry] + AD
+        BC = [0, 0, 0] + [BC_Carry] + BC
+
+        AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
+        AD_BC = AD_BC + [0, 0, 0, 0]
+
+        # + iter(bd, n/2)
+        BD, BD_Carry = iterativeMethod(A[n_div_two:n], B[n_div_two:n], n_div_two)
+
+        # Fast adder
+
+        AC_BD = AC + BD
+        # Make sure to implement w/ carry
+
+        return FastAdderCarrySelect(AC_BD, AD_BC, 0)
+
+def base(A: List[int], B: List[int], n: int) -> List[int]:
+    a: int = A[0]
+    b: int = A[1]
+    c: int = B[0]
+    d: int = B[1]
+    carry: int = 0
+    adbc_carry: int = 0
+
+    ac: List[int] = []
+    ad: List[int] = []
+    bc: List[int] = []
+    adbc: List[int] = []
+    bd: List[int] = []
+
+    to_return: List[int] = []
+
+    ac.append(0)
+    ac.append(AND(a, c)) #
+    ac = SHIFTL(ac, n) #
+
+    ad.append(0)
+    ad.append(AND(a, d))
+
+    bc.append(0)
+    bc.append(AND(b, c))
+
+    adbc_carry = AND(ad[1], bc[1]) #
+
+    adbc.append(0)
+    adbc.append(adbc_carry)
+    adbc.append(XOR(ad[1], bc[1])) #
+
+    adbc = SHIFTL(adbc, n // 2)
+
+    bd.append(0)
+    bd.append(0)
+    bd.append(0)
+    bd.append(AND(b, d))
+
+    to_return, carry = FastAdderCarrySelect(ac, adbc, 0)
+    to_return, carry = FastAdderCarrySelect(to_return, bd, carry)
+
+    return to_return, carry
+
+
+
+def it(A: List[int], B: List[int], n: int) -> List[int]:
+    while not math.log(n, 2).is_integer():
+        A.insert(0, 0)
+        B.insert(0, 0)
+        n += 1
+    # if len(A) % 4 != 0:
+    #     for _ in range(4 - (len(A) % 4)):
+    #         A.insert(0, 0)
+    #         B.insert(0, 0)
+    #         n += 1
+
+    return itMain(A, B, n)
+
+def itMain(A: List[int], B: List[int], n: int) -> List[int]:
+    if n == 2:
+        return base(A, B, n)
+
+    # Recursive call
+    n_div_two = n // 2
+    # 2^n iter(ac, n/2)
+    AC, AC_Carry = itMain(A[0:n_div_two], B[0:n_div_two], n_div_two)
+    AC = SHIFTL(AC, n)
+
+    # 2^n/2 (iter(ad, n/2) + iter(bc, n/2)
+    AD, AD_Carry = itMain(A[0:n_div_two], B[n_div_two:n], n_div_two)
+    BC, BC_Carry = itMain(A[n_div_two:n], B[0:n_div_two], n_div_two)
+
+    AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
+    AD_BC = SHIFTL(AD_BC, n // 2) # Shift
+
+    while len(AD_BC) < len(AC):
+        AD_BC.insert(0, 0)
+
+    # + iter(bd, n/2)
+    BD, BD_Carry = itMain(A[n_div_two:n], B[n_div_two:n], n_div_two)
+
+    while len(BD) < len(AC):
+        BD.insert(0, 0)
+
+    # Fast adder
+
+    AC_BD, AC_BD_Carry = FastAdderCarrySelect(AC, BD, 0)
+    # Make sure to implement w/ carry
+
+    return FastAdderCarrySelect(AC_BD, AD_BC, AC_BD_Carry)
 
 def summandMatrix(A: List[int], B: List[int]) -> List[List[int]]:
     num_length = len(A)
@@ -810,3 +901,9 @@ if __name__ == "__main__":
     #     print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
     #     print('time of operation: ', time, end='\n')
 
+    print("\nIterative")
+    for multPair in testData:
+        time = 0
+        print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
+        print(multPair[0], '+', multPair[1], '=', it(multPair[0], multPair[1], len(multPair[0])))
+        print('time of operation: ', time, end='\n')
