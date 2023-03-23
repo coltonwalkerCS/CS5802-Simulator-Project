@@ -1,5 +1,6 @@
 # Add and Shift helper function
 import math
+import matplotlib.pyplot as plt
 from typing import List, Literal
 time = 0
 
@@ -21,6 +22,27 @@ I.E. global_time += xDT
 
 
 """
+------------ RAND FUNCS ------------
+"""
+
+
+# Input: A binary list of 1's and 0's
+# Output: hexadecimal number type(string)
+def binList_to_Hex(binList):
+
+    for i in range(len(binList)):
+        binList[i] = str(binList[i])
+
+    binStr = ''.join(binList)
+    num = int(binStr, 2)
+
+    # convert int to hexadecimal
+    hex_num = format(num, 'x')
+    hex_num = hex_num.upper()
+    return hex_num
+
+
+"""
 -------- BASIC LOGIC GATE & F.A. OPERATIONS --------
 """
 
@@ -29,8 +51,8 @@ I.E. global_time += xDT
 # Input: Two Bits
 # Output: 1 or 0
 def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 1
+    # global time
+    # time += 1
     if bitOne == 1 and bitTwo == 1:
         return 1
     else:
@@ -41,8 +63,8 @@ def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 1
+    # global time
+    # time += 1
     if bitOne == 1 and bitTwo == 1:
         return 0
     else:
@@ -53,8 +75,8 @@ def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 1
+    # global time
+    # time += 1
     if bitOne or bitTwo:
         return 1
     else:
@@ -65,8 +87,8 @@ def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def XOR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 2
+    # global time
+    # time += 2
     return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 # Four bit full adder implementation
@@ -300,6 +322,7 @@ def add_B_to_AQ(AQ, B):
 # Output: Result of multiplying the two
 # inputs together
 def add_and_shift(multiplier, multiplicand):
+    global time
     # Finds the size AQ will be (+1 for carry bit)
     size_AQ = (2 * max(len(multiplier), len(multiplicand))) + 1
 
@@ -312,20 +335,23 @@ def add_and_shift(multiplier, multiplicand):
     # Initialize AQ
     for i in range(len(multiplier)):
         AQ[size_AQ - len(multiplier) + i] = multiplier[i]
-    num_XOR = 0
+
     num_Shift = 0
     for i in range(len(B)):
         # Check Q0 if 1 or 0
         if AQ[size_AQ - 1]:
-            AQ, XOR_OPS = add_B_to_AQ(AQ, B)
-            num_XOR += XOR_OPS
+            AQ, FATime = add_B_to_AQ(AQ, B)
             AQ = shiftAQ(AQ)
             num_Shift += 1
+            time += FATime
         else:
             AQ = shiftAQ(AQ)
             num_Shift += 1
 
-    return AQ, num_XOR, num_Shift
+    for _ in range(num_Shift):
+        time += 3
+
+    return AQ
 
 
 """
@@ -398,10 +424,11 @@ def iterative(A: List[int], B: List[int], n: int) -> List[int]:
     
     return result
 
+
 def itMain(A: List[int], B: List[int], n: int) -> List[int]:
     if n == 2:
         return base(A, B, n)
-    
+
     # Recursive call
     n_div_two = n // 2
 
@@ -414,7 +441,6 @@ def itMain(A: List[int], B: List[int], n: int) -> List[int]:
     BC, BC_Carry = itMain(A[n_div_two:n], B[0:n_div_two], n_div_two)
 
     AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
-    AD_BC.insert(0, ADBC_Carry)
     AD_BC = SHIFTL(AD_BC, n // 2) # Shift
 
     while len(AD_BC) < len(AC):
@@ -473,10 +499,102 @@ if __name__ == "__main__":
     test_multiplier = [0, 1, 0, 1]
     test_multiplicand = [1, 1, 0, 1]
 
+    # Carry Select fast adder testing
+    # test_add_one = [1, 0, 1, 1]
+    # test_add_two = [1, 1, 0, 1]
+    #
+    # test_add_three = [1, 1, 0, 0, 0, 0, 1, 1]
+    # test_add_four = [1, 0, 1, 1, 1, 1, 0, 0]
+    #
+    # test_add_five = [1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0]
+    # test_add_six = [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1]
+    #
+    # test_add_seven = [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]
+    # test_add_eight = [0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1]
+    #
+    # print(test_add_one, '+', test_add_two, '=')
+    # print(FastAdderCarrySelect(test_add_one, test_add_two, 0))
+    #
+    #
+    # print(test_add_three, '+', test_add_four, '=')
+    # print(FastAdderCarrySelect(test_add_three, test_add_four, 0))
+    #
+    # print(test_add_five, '+', test_add_six, '=')
+    # print(FastAdderCarrySelect(test_add_five, test_add_six, 0))
+    #
+    # print(test_add_seven, '+', test_add_eight, '=')
+    # print(FastAdderCarrySelect(test_add_seven, test_add_eight, 0))
+
+    # Testing Add and Shift and Iterative Method correctness with two 12-bit numbers
+    # print(test_add_seven, '*', test_add_eight, '=')
+    # print("Add and Shift    -", add_and_shift(test_add_seven, test_add_eight))
+    # print("Iterative Method -", iterativeMethod(test_add_seven, test_add_eight, 16))
+
+    # Testing matrix of summands
+    # print("Matrix of summands:", test_add_one, "*", test_add_two)
+    # print(iterative(test_add_one, test_add_two))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_one, test_add_two))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print("\nMatrix of summands:", test_add_three, "*", test_add_four)
+    # print(iterative(test_add_three, test_add_four))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_three, test_add_four))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print("\nMatrix of summands:", test_add_five, "*", test_add_six)
+    # print(iterative(test_add_five, test_add_six))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_five, test_add_six))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print("\nMatrix of summands:", test_add_seven, "*", test_add_eight)
+    # print(iterative(test_add_seven, test_add_eight))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_seven, test_add_eight))
+    # print("Time:", time)
+    # time = 0
+    X_add_and_shift_binaryLen = []
+    Y_add_and_shift_optime = []
+
     for multPair in testData:
         time = 0
-        print(multPair[0], '+', multPair[1], '=', add_and_shift(multPair[0], multPair[1]))
+        one = ''
+        two = ''
+        for ele in multPair[0]:
+            one += str(ele)
+        for ele in multPair[1]:
+            two += str(ele)
+        print(one, '*', two)
+        result = add_and_shift(multPair[0], multPair[1])
+        res = ''
+        for ele in result:
+            res += str(ele)
+
+        print('=', res, ":", binList_to_Hex(result))
         print('time of operation: ', time, end='\n')
+        X_add_and_shift_binaryLen.append(len(multPair[0]))
+        Y_add_and_shift_optime.append(time)
+
+    plt.scatter(X_add_and_shift_binaryLen, Y_add_and_shift_optime, c="blue")
+    # plt.scatter([4, 6, 8, 12], [60, 105, 125, 150], c="red")
+    plt.show()
+    # for multPair in testData:
+    #     time = 0
+    #     print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
+    #     print('time of operation: ', time, end='\n')
 
     print("\nIterative")
     for multPair in testData:
