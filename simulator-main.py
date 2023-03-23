@@ -51,8 +51,6 @@ def binList_to_Hex(binList):
 # Input: Two Bits
 # Output: 1 or 0
 def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    # global time
-    # time += 1
     if bitOne == 1 and bitTwo == 1:
         return 1
     else:
@@ -63,8 +61,6 @@ def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    # global time
-    # time += 1
     if bitOne == 1 and bitTwo == 1:
         return 0
     else:
@@ -75,8 +71,6 @@ def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    # global time
-    # time += 1
     if bitOne or bitTwo:
         return 1
     else:
@@ -87,8 +81,6 @@ def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def XOR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    # global time
-    # time += 2
     return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 # Four bit full adder implementation
@@ -116,10 +108,12 @@ def FourBitFullAdder(A_bits, B_bits, carryIn):
 # Input: Two binary numbers 4,8,12 or 16 bits long
 # Output: Sum of two binary numbers
 def FastAdderCarrySelect(binNumOne, binNumTwo, carryIn):
+    global time
     numFAOps = len(binNumOne) / 4
     sumBin = []
     carryFA = carryIn
     numPointer = len(binNumOne)
+    time += 10 + (((len(binNumOne) - 4) // 4) * 2)
     if numFAOps == 1:
         # Primary FA operation
         FA_result, newCarry = FourBitFullAdder(binNumOne, binNumTwo, carryFA)
@@ -273,8 +267,6 @@ def shiftAQ(AQ: List[int]) -> List[int]:
         AQ[i] = AQ[i - 1]
     AQ[0] = 0
 
-    global time
-    time += 3
     return AQ
 
 
@@ -363,6 +355,7 @@ def add_and_shift(multiplier, multiplicand):
 # We then can do trivial multiplication (0 * 1 = 0 or 1 * 1 = 1)
 # Returning 2^n*(ac) + 2^(n/2)(adbc) + bd
 def base(A: List[int], B: List[int], n: int) -> List[int]:
+    global time
     a: int = A[0]
     b: int = A[1]
     c: int = B[0]
@@ -405,6 +398,8 @@ def base(A: List[int], B: List[int], n: int) -> List[int]:
     to_return, carry_one = FastAdderCarrySelect(ac, adbc, 0)
     to_return, carry_two = FastAdderCarrySelect(to_return, bd, carry_one)
 
+    time += 12
+
     return to_return, carry_two
 
 
@@ -426,6 +421,7 @@ def iterative(A: List[int], B: List[int], n: int) -> List[int]:
 
 
 def itMain(A: List[int], B: List[int], n: int) -> List[int]:
+    global time
     if n == 2:
         return base(A, B, n)
 
@@ -457,6 +453,8 @@ def itMain(A: List[int], B: List[int], n: int) -> List[int]:
     AC_BD, ACBD_Carry = FastAdderCarrySelect(AC, BD, 0)
     # Make sure to implement w/ carry
 
+    time += 6
+
     return FastAdderCarrySelect(AC_BD, AD_BC, ACBD_Carry)
 
 # Shift Left
@@ -468,8 +466,6 @@ def SHIFTL(binary_number: List[int], num_shifts: int) -> List[int]:
     for _ in range(num_shifts):
         to_return.append(0)
     
-    global time
-    time += 3
     return to_return
 
 
