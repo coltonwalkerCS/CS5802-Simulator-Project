@@ -68,7 +68,7 @@ def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Output: 1 or 0
 def XOR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
     global time
-    time -= 2
+    time += 2
     return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 
@@ -660,21 +660,43 @@ def SHIFTL(binary_number: List[int], num_shifts: int) -> List[int]:
 
 
 if __name__ == "__main__":
+
+    testData = [([1, 1, 1, 0], [1, 1, 1, 1]), ([0, 1, 0, 1], [0, 1, 0, 1]),
+                ([1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]),
+                ([1, 0, 1, 1, 1, 0], [1, 1, 0, 1, 1, 1]),
+                ([1, 1, 1, 0, 1, 1], [1, 0, 0, 0, 1, 1]),
+                ([0, 0, 0, 1, 1, 1, 1, 1], [0, 1, 0, 1, 0, 1, 0, 1]),
+                ([1, 1, 0, 1, 0, 1, 1, 1], [0, 1, 0, 1, 0, 1, 0, 1]),
+                ([0, 1, 0, 1, 0, 1, 0, 1], [1, 1, 0, 1, 0, 1, 1, 1]),
+                ([0, 1, 1, 1, 0, 1, 1, 1], [0, 0, 1, 1, 0, 0, 1, 1]),
+                ([0, 1, 1, 1, 1, 0, 0, 0], [0, 1, 1, 1, 0, 1, 1, 1]),
+                ([0, 1, 0, 1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]),
+                ([1, 1, 0, 0, 1, 1, 1, 0, 1, 1], [1, 0, 0, 1, 1, 1, 0, 0, 0, 0]),
+                ([1, 0, 0, 1, 1, 0, 1, 1, 1, 0], [0, 1, 0, 1, 1, 1, 1, 0, 1, 0]),
+                ([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]),
+                ([0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]),
+                ([1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]),
+                ([1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]),
+                ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]),
+                ([1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0], [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1]),
+                ([0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0], [1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0]),
+                ([1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0], [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0])]
+
     test_multiplier = [0, 1, 0, 1]
     test_multiplicand = [1, 1, 0, 1]
 
     # Carry Select fast adder testing
-    test_add_one = [1, 0, 1, 1]
-    test_add_two = [1, 1, 0, 1]
-
-    test_add_three = [1, 1, 0, 0, 0, 0, 1, 1]
-    test_add_four = [1, 0, 1, 1, 1, 1, 0, 0]
-
-    test_add_five = [1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0]
-    test_add_six = [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1]
-
-    test_add_seven = [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]
-    test_add_eight = [0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1]
+    # test_add_one = [1, 0, 1, 1]
+    # test_add_two = [1, 1, 0, 1]
+    #
+    # test_add_three = [1, 1, 0, 0, 0, 0, 1, 1]
+    # test_add_four = [1, 0, 1, 1, 1, 1, 0, 0]
+    #
+    # test_add_five = [1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0]
+    # test_add_six = [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1]
+    #
+    # test_add_seven = [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]
+    # test_add_eight = [0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1]
     #
     # print(test_add_one, '+', test_add_two, '=')
     # print(FastAdderCarrySelect(test_add_one, test_add_two, 0))
@@ -695,38 +717,48 @@ if __name__ == "__main__":
     # print("Iterative Method -", iterativeMethod(test_add_seven, test_add_eight, 16))
 
     # Testing matrix of summands
-    print("Matrix of summands:", test_add_one, "*", test_add_two)
-    print(iterative(test_add_one, test_add_two))
-    print("Time:", time)
-    time = 0
+    # print("Matrix of summands:", test_add_one, "*", test_add_two)
+    # print(iterative(test_add_one, test_add_two))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_one, test_add_two))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print("\nMatrix of summands:", test_add_three, "*", test_add_four)
+    # print(iterative(test_add_three, test_add_four))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_three, test_add_four))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print("\nMatrix of summands:", test_add_five, "*", test_add_six)
+    # print(iterative(test_add_five, test_add_six))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_five, test_add_six))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print("\nMatrix of summands:", test_add_seven, "*", test_add_eight)
+    # print(iterative(test_add_seven, test_add_eight))
+    # print("Time:", time)
+    # time = 0
+    #
+    # print(add_and_shift(test_add_seven, test_add_eight))
+    # print("Time:", time)
+    # time = 0
 
-    print(add_and_shift(test_add_one, test_add_two))
-    print("Time:", time)
-    time = 0
+    for multPair in testData:
+        time = 0
+        print(multPair[0], '+', multPair[1], '=', add_and_shift(multPair[0], multPair[1]))
+        print('time of operation: ', time, end='\n')
 
-    print("\nMatrix of summands:", test_add_three, "*", test_add_four)
-    print(iterative(test_add_three, test_add_four))
-    print("Time:", time)
-    time = 0
-
-    print(add_and_shift(test_add_three, test_add_four))
-    print("Time:", time)
-    time = 0
-
-    print("\nMatrix of summands:", test_add_five, "*", test_add_six)
-    print(iterative(test_add_five, test_add_six))
-    print("Time:", time)
-    time = 0
-
-    print(add_and_shift(test_add_five, test_add_six))
-    print("Time:", time)
-    time = 0
-
-    print("\nMatrix of summands:", test_add_seven, "*", test_add_eight)
-    print(iterative(test_add_seven, test_add_eight))
-    print("Time:", time)
-    time = 0
-
-    print(add_and_shift(test_add_seven, test_add_eight))
-    print("Time:", time)
-    time = 0
+    for multPair in testData:
+        time = 0
+        print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
+        print('time of operation: ', time, end='\n')
