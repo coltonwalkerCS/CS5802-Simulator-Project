@@ -11,6 +11,7 @@ Could use a global variable that XOR, AND, NAND, OR, and SHIFTAQ functions can a
 Everytime one of those functions are called, we add to the global variable. Clear when starting new simulation.
 I.E. global_time += xDT
 """
+time = 0
 
 # Four bit full adder implementation
 # Using logic gates to generate results
@@ -36,11 +37,11 @@ def FourBitFullAdder(A_bits, B_bits, carryIn):
 # Given two binary numbers with carry 1 and 0
 # choose the binary option which corresponds
 # to the carry
-def MUX(binOptionCarryOne, binOptionCarryZero, carryOut):
-    if carryOut:
-        return binOptionCarryOne
-    else:
-        return binOptionCarryZero
+# def MUX(binOptionCarryOne, binOptionCarryZero, carryOut):
+#     if carryOut:
+#         return binOptionCarryOne
+#     else:
+#         return binOptionCarryZero
 
 
 # NEED TO FIX:
@@ -65,406 +66,104 @@ def FastAdderCarrySelect(binNumOne, binNumTwo, carryIn):
         sumBin = FA_result + sumBin
         endCarry = newCarry
     elif numFAOps == 2:
-        # Primary FA operation
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for next FA operation in parallel
-        FA_binaryOptionOne, newCarryOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                             binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryOptionTwo, newCarryOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                             binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryOptionOne, FA_binaryOptionTwo, newCarry) + sumBin
+        sumBin = FA1_result + FA_result
 
-        if newCarry:
-            endCarry = newCarryOpOne
-        else:
-            endCarry = newCarryOpTwo
-
+        endCarry = newCarry
     elif numFAOps == 3:
-        # Primary FA operation
-        # print(binNumOne[numPointer - 4:numPointer])
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for first FA operation in parallel
-        FA_binaryFirOptionOne, newCarryFirOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryFirOptionTwo, newCarryFirOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        # Generate 1 and 0 carry options for second FA operation in parallel
-        FA_binarySecOptionOne, newCarrySecOpOne = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 1)
-        FA_binarySecOptionTwo, newCarrySecOpTwo = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 0)
+        FA2_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8], binNumTwo[numPointer - 12:numPointer - 8], newCarry)
 
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryFirOptionOne, FA_binaryFirOptionTwo, newCarry) + sumBin
+        sumBin = FA2_result + FA1_result + FA_result
 
-        if newCarry:
-            newCarry = newCarryFirOpOne
-        else:
-            newCarry = newCarryFirOpTwo
-
-        sumBin = MUX(FA_binarySecOptionOne, FA_binarySecOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarrySecOpOne
-        else:
-            endCarry = newCarrySecOpTwo
+        endCarry = newCarry
     elif numFAOps == 4:
-        # Primary FA operation
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for first FA operation in parallel
-        FA_binaryFirOptionOne, newCarryFirOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryFirOptionTwo, newCarryFirOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        # Generate 1 and 0 carry options for second FA operation in parallel
-        FA_binarySecOptionOne, newCarrySecOpOne = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 1)
-        FA_binarySecOptionTwo, newCarrySecOpTwo = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 0)
+        FA2_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8], binNumTwo[numPointer - 12:numPointer - 8], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryThrOptionOne, newCarryThrOpOne = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 1)
-        FA_binaryThrOptionTwo, newCarryThrOpTwo = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 0)
+        FA3_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12], binNumTwo[numPointer - 16:numPointer - 12], newCarry)
 
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryFirOptionOne, FA_binaryFirOptionTwo, newCarry) + sumBin
+        sumBin = FA3_result + FA2_result + FA1_result + FA_result
 
-        if newCarry:
-            newCarry = newCarryFirOpOne
-        else:
-            newCarry = newCarryFirOpTwo
-
-        sumBin = MUX(FA_binarySecOptionOne, FA_binarySecOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            newCarry = newCarrySecOpOne
-        else:
-            newCarry = newCarrySecOpTwo
-
-        sumBin = MUX(FA_binaryThrOptionOne, FA_binaryThrOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryThrOpOne
-        else:
-            endCarry = newCarryThrOpTwo
+        endCarry = newCarry
     elif numFAOps == 5:
-        # Primary FA operation
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for first FA operation in parallel
-        FA_binaryFirOptionOne, newCarryFirOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryFirOptionTwo, newCarryFirOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        # Generate 1 and 0 carry options for second FA operation in parallel
-        FA_binarySecOptionOne, newCarrySecOpOne = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 1)
-        FA_binarySecOptionTwo, newCarrySecOpTwo = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 0)
+        FA2_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8], binNumTwo[numPointer - 12:numPointer - 8], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryThrOptionOne, newCarryThrOpOne = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 1)
-        FA_binaryThrOptionTwo, newCarryThrOpTwo = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 0)
-        
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFourOptionOne, newCarryFourOpOne = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 1)
-        FA_binaryFourOptionTwo, newCarryFourOpTwo = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 0)
+        FA3_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12], binNumTwo[numPointer - 16:numPointer - 12], newCarry)
 
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryFirOptionOne, FA_binaryFirOptionTwo, newCarry) + sumBin
+        FA4_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16], binNumTwo[numPointer - 20:numPointer - 16], newCarry)
 
-        if newCarry:
-            newCarry = newCarryFirOpOne
-        else:
-            newCarry = newCarryFirOpTwo
+        sumBin = FA4_result + FA3_result + FA2_result + FA1_result + FA_result
 
-        sumBin = MUX(FA_binarySecOptionOne, FA_binarySecOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            newCarry = newCarrySecOpOne
-        else:
-            newCarry = newCarrySecOpTwo
-
-        sumBin = MUX(FA_binaryThrOptionOne, FA_binaryThrOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryThrOpOne
-        else:
-            endCarry = newCarryThrOpTwo
-        
-        sumBin = MUX(FA_binaryFourOptionOne, FA_binaryFourOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFourOpOne
-        else:
-            endCarry = newCarryFourOpTwo
+        endCarry = newCarry
     elif numFAOps == 6:
         # Primary FA operation
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for first FA operation in parallel
-        FA_binaryFirOptionOne, newCarryFirOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryFirOptionTwo, newCarryFirOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        # Generate 1 and 0 carry options for second FA operation in parallel
-        FA_binarySecOptionOne, newCarrySecOpOne = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 1)
-        FA_binarySecOptionTwo, newCarrySecOpTwo = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 0)
+        FA2_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8], binNumTwo[numPointer - 12:numPointer - 8], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryThrOptionOne, newCarryThrOpOne = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 1)
-        FA_binaryThrOptionTwo, newCarryThrOpTwo = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 0)
-        
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFourOptionOne, newCarryFourOpOne = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 1)
-        FA_binaryFourOptionTwo, newCarryFourOpTwo = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 0)
+        FA3_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12], binNumTwo[numPointer - 16:numPointer - 12], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFiveOptionOne, newCarryFiveOpOne = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20],
-                                                                   binNumTwo[numPointer - 24:numPointer - 20], 1)
-        FA_binaryFiveOptionTwo, newCarryFiveOpTwo = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20],
-                                                                   binNumTwo[numPointer - 24:numPointer - 20], 0)
-        
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryFirOptionOne, FA_binaryFirOptionTwo, newCarry) + sumBin
+        FA4_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16], binNumTwo[numPointer - 20:numPointer - 16], newCarry)
 
-        if newCarry:
-            newCarry = newCarryFirOpOne
-        else:
-            newCarry = newCarryFirOpTwo
+        FA5_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20], binNumTwo[numPointer - 24:numPointer - 20], newCarry)
 
-        sumBin = MUX(FA_binarySecOptionOne, FA_binarySecOptionTwo, newCarry) + sumBin
+        sumBin = FA5_result + FA4_result + FA3_result + FA2_result + FA1_result + FA_result
 
-        if newCarry:
-            newCarry = newCarrySecOpOne
-        else:
-            newCarry = newCarrySecOpTwo
-
-        sumBin = MUX(FA_binaryThrOptionOne, FA_binaryThrOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryThrOpOne
-        else:
-            endCarry = newCarryThrOpTwo
-        
-        sumBin = MUX(FA_binaryFourOptionOne, FA_binaryFourOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFourOpOne
-        else:
-            endCarry = newCarryFourOpTwo
-        
-        sumBin = MUX(FA_binaryFiveOptionOne, FA_binaryFiveOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFiveOpOne
-        else:
-            endCarry = newCarryFiveOpTwo
+        endCarry = newCarry
     elif numFAOps == 7:
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for first FA operation in parallel
-        FA_binaryFirOptionOne, newCarryFirOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryFirOptionTwo, newCarryFirOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        # Generate 1 and 0 carry options for second FA operation in parallel
-        FA_binarySecOptionOne, newCarrySecOpOne = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 1)
-        FA_binarySecOptionTwo, newCarrySecOpTwo = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 0)
+        FA2_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8], binNumTwo[numPointer - 12:numPointer - 8], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryThrOptionOne, newCarryThrOpOne = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 1)
-        FA_binaryThrOptionTwo, newCarryThrOpTwo = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 0)
+        FA3_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12], binNumTwo[numPointer - 16:numPointer - 12], newCarry)
+
+        FA4_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16], binNumTwo[numPointer - 20:numPointer - 16], newCarry)
+
+        FA5_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20], binNumTwo[numPointer - 24:numPointer - 20], newCarry)
+
+        FA6_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 28:numPointer - 24], binNumTwo[numPointer - 28:numPointer - 24], newCarry)
+
+        sumBin = FA6_result + FA5_result + FA4_result + FA3_result + FA2_result + FA1_result + FA_result
         
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFourOptionOne, newCarryFourOpOne = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 1)
-        FA_binaryFourOptionTwo, newCarryFourOpTwo = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 0)
-
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFiveOptionOne, newCarryFiveOpOne = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20],
-                                                                   binNumTwo[numPointer - 24:numPointer - 20], 1)
-        FA_binaryFiveOptionTwo, newCarryFiveOpTwo = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20],
-                                                                   binNumTwo[numPointer - 24:numPointer - 20], 0)
-        
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binarySixOptionOne, newCarrySixOpOne = FourBitFullAdder(binNumOne[numPointer - 28:numPointer - 24],
-                                                                   binNumTwo[numPointer - 28:numPointer - 24], 1)
-        FA_binarySixOptionTwo, newCarrySixOpTwo = FourBitFullAdder(binNumOne[numPointer - 28:numPointer - 24],
-                                                                   binNumTwo[numPointer - 28:numPointer - 24], 0)
-        
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryFirOptionOne, FA_binaryFirOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            newCarry = newCarryFirOpOne
-        else:
-            newCarry = newCarryFirOpTwo
-
-        sumBin = MUX(FA_binarySecOptionOne, FA_binarySecOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            newCarry = newCarrySecOpOne
-        else:
-            newCarry = newCarrySecOpTwo
-
-        sumBin = MUX(FA_binaryThrOptionOne, FA_binaryThrOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryThrOpOne
-        else:
-            endCarry = newCarryThrOpTwo
-        
-        sumBin = MUX(FA_binaryFourOptionOne, FA_binaryFourOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFourOpOne
-        else:
-            endCarry = newCarryFourOpTwo
-        
-        sumBin = MUX(FA_binaryFiveOptionOne, FA_binaryFiveOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFiveOpOne
-        else:
-            endCarry = newCarryFiveOpTwo
-
-        sumBin = MUX(FA_binarySixOptionOne, FA_binarySixOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarrySixOpOne
-        else:
-            endCarry = newCarrySixOpTwo
+        endCarry = newCarry
     else:
-        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer],
-                                               binNumTwo[numPointer - 4:numPointer], carryFA)
+        FA_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 4:numPointer], binNumTwo[numPointer - 4:numPointer], carryFA)
 
-        # Generate 1 and 0 carry options for first FA operation in parallel
-        FA_binaryFirOptionOne, newCarryFirOpOne = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 1)
-        FA_binaryFirOptionTwo, newCarryFirOpTwo = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4],
-                                                                   binNumTwo[numPointer - 8:numPointer - 4], 0)
+        FA1_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 8:numPointer - 4], binNumTwo[numPointer - 8:numPointer - 4], newCarry)
 
-        # Generate 1 and 0 carry options for second FA operation in parallel
-        FA_binarySecOptionOne, newCarrySecOpOne = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 1)
-        FA_binarySecOptionTwo, newCarrySecOpTwo = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8],
-                                                                   binNumTwo[numPointer - 12:numPointer - 8], 0)
+        FA2_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 12:numPointer - 8], binNumTwo[numPointer - 12:numPointer - 8], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryThrOptionOne, newCarryThrOpOne = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 1)
-        FA_binaryThrOptionTwo, newCarryThrOpTwo = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12],
-                                                                   binNumTwo[numPointer - 16:numPointer - 12], 0)
+        FA3_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 16:numPointer - 12], binNumTwo[numPointer - 16:numPointer - 12], newCarry)
+
+        FA4_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16], binNumTwo[numPointer - 20:numPointer - 16], newCarry)
+
+        FA5_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20], binNumTwo[numPointer - 24:numPointer - 20], newCarry)
+
+        FA6_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 28:numPointer - 24], binNumTwo[numPointer - 28:numPointer - 24], newCarry)
         
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFourOptionOne, newCarryFourOpOne = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 1)
-        FA_binaryFourOptionTwo, newCarryFourOpTwo = FourBitFullAdder(binNumOne[numPointer - 20:numPointer - 16],
-                                                                   binNumTwo[numPointer - 20:numPointer - 16], 0)
+        FA7_result, newCarry = FourBitFullAdder(binNumOne[numPointer - 32:numPointer - 28], binNumTwo[numPointer - 32:numPointer - 28], newCarry)
 
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binaryFiveOptionOne, newCarryFiveOpOne = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20],
-                                                                   binNumTwo[numPointer - 24:numPointer - 20], 1)
-        FA_binaryFiveOptionTwo, newCarryFiveOpTwo = FourBitFullAdder(binNumOne[numPointer - 24:numPointer - 20],
-                                                                   binNumTwo[numPointer - 24:numPointer - 20], 0)
+        sumBin = FA7_result + FA6_result + FA5_result + FA4_result + FA3_result + FA2_result + FA1_result + FA_result
         
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binarySixOptionOne, newCarrySixOpOne = FourBitFullAdder(binNumOne[numPointer - 28:numPointer - 24],
-                                                                   binNumTwo[numPointer - 28:numPointer - 24], 1)
-        FA_binarySixOptionTwo, newCarrySixOpTwo = FourBitFullAdder(binNumOne[numPointer - 28:numPointer - 24],
-                                                                   binNumTwo[numPointer - 28:numPointer - 24], 0)
-        
-        # Generate 1 and 0 carry options for third FA operation in parallel
-        FA_binarySevOptionOne, newCarrySevOpOne = FourBitFullAdder(binNumOne[numPointer - 32:numPointer - 28],
-                                                                   binNumTwo[numPointer - 32:numPointer - 28], 1)
-        FA_binarySevOptionTwo, newCarrySevOpTwo = FourBitFullAdder(binNumOne[numPointer - 32:numPointer - 28],
-                                                                   binNumTwo[numPointer - 32:numPointer - 28], 0)        
-        
-        sumBin = FA_result + sumBin
-        sumBin = MUX(FA_binaryFirOptionOne, FA_binaryFirOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            newCarry = newCarryFirOpOne
-        else:
-            newCarry = newCarryFirOpTwo
-
-        sumBin = MUX(FA_binarySecOptionOne, FA_binarySecOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            newCarry = newCarrySecOpOne
-        else:
-            newCarry = newCarrySecOpTwo
-
-        sumBin = MUX(FA_binaryThrOptionOne, FA_binaryThrOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryThrOpOne
-        else:
-            endCarry = newCarryThrOpTwo
-        
-        sumBin = MUX(FA_binaryFourOptionOne, FA_binaryFourOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFourOpOne
-        else:
-            endCarry = newCarryFourOpTwo
-        
-        sumBin = MUX(FA_binaryFiveOptionOne, FA_binaryFiveOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarryFiveOpOne
-        else:
-            endCarry = newCarryFiveOpTwo
-
-        sumBin = MUX(FA_binarySixOptionOne, FA_binarySixOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarrySixOpOne
-        else:
-            endCarry = newCarrySixOpTwo
-
-        sumBin = MUX(FA_binarySevOptionOne, FA_binarySevOptionTwo, newCarry) + sumBin
-
-        if newCarry:
-            endCarry = newCarrySevOpOne
-        else:
-            endCarry = newCarrySevOpTwo
-
-    # sumBin.insert(0, endCarry)
+        endCarry = newCarry
     return sumBin, endCarry
 
 
@@ -534,8 +233,6 @@ def iterativeBase(A, B):
 # ONCE FAST ADDER IS FIXED SHOULD BE WORKING WITH
 # NEW FAST ADDER IMPLEMENTATION
 # ITS TOO CONFUSING ATM WITH THE CARRY
-
-# TODO: Rewrite iterativeMethod() 
 
 # Using X * Y = 2^n(ac) + 2^(n/2)(ad + bc) + bd, we can simplify the algorithm
 # 2^nX is the same as shifting a binary number, X, n spaces to the left
@@ -723,6 +420,22 @@ def iterative(A: List[int], B: List[int]) -> List[int]:
         bc.insert(0, 1)
         temp_int = 0
 
+    if len(ad_bin) % 4 != 0:
+        for _ in range(4 - (len(ad_bin) % 4)):
+            ad_bin.insert(0, 0)
+    
+    if len(bc_bin) % 4 != 0:
+        for _ in range(4 - (len(bc_bin) % 4)):
+            bc_bin.insert(0, 0)
+
+    if len(ad_bin) < len(bc_bin):
+        for _ in range(len(bc_bin) - len(ad_bin)):
+            ad_bin.insert(0, 0)
+    
+    if len(bc_bin) < len(ad_bin):
+        for _ in range(len(ad_bin) - len(bc_bin)):
+            bc_bin.insert(0, 0)
+    
     adbc_bin, temp_int = FastAdderCarrySelect(ad_bin, bc_bin, 0)
 
     if temp_int == 1:
@@ -748,31 +461,6 @@ def iterative(A: List[int], B: List[int]) -> List[int]:
 
     if temp_int == 1:
         return_bin.insert(0, 1)
-    
-    # Test
-    # print("AD")
-    # for list in ad:
-    #     print(list)
-    # print("BD")
-    # for list in bd:
-    #     print(list)
-    # print("AC")
-    # for list in ac:
-    #     print(list)
-    # print("BC")
-    # for list in bc:
-    #     print(list)
-
-    # print("\nBIN AD")
-    # print(ad_bin)
-    # print("\nBIN BD")
-    # print(bd_bin)
-    # print("\nBIN AC")
-    # print(ac_bin)
-    # print("\nBIN BC")
-    # print(bc_bin)
-    # print("AC_SHIFT")
-    # print(ac_shift)
 
     return return_bin
 
@@ -781,6 +469,8 @@ def iterative(A: List[int], B: List[int]) -> List[int]:
 # Input: Two Bits
 # Output: 1 or 0
 def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
+    global time
+    time += 1
     if bitOne == 1 and bitTwo == 1:
         return 1
     else:
@@ -791,6 +481,8 @@ def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
+    global time
+    time += 1
     if bitOne == 1 and bitTwo == 1:
         return 0
     else:
@@ -801,6 +493,8 @@ def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
+    global time
+    time += 1
     if bitOne or bitTwo:
         return 1
     else:
@@ -811,6 +505,8 @@ def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def XOR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
+    global time
+    time -= 2
     return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 
@@ -819,6 +515,9 @@ def shiftAQ(AQ: List[int]) -> List[int]:
     for i in range(len(AQ) - 1, 0, -1):
         AQ[i] = AQ[i - 1]
     AQ[0] = 0
+
+    global time
+    time += 3
     return AQ
 
 # Shift Left
@@ -830,6 +529,8 @@ def SHIFTL(binary_number: List[int], num_shifts: int) -> List[int]:
     for _ in range(num_shifts):
         to_return.append(0)
     
+    global time
+    time += 3
     return to_return
 
 # Add and Shift helper function
@@ -966,16 +667,36 @@ if __name__ == "__main__":
     # Testing matrix of summands
     print("Matrix of summands:", test_add_one, "*", test_add_two)
     print(iterative(test_add_one, test_add_two))
+    print("Time:", time)
+    time = 0
+
     print(add_and_shift(test_add_one, test_add_two))
+    print("Time:", time)
+    time = 0
 
     print("\nMatrix of summands:", test_add_three, "*", test_add_four)
     print(iterative(test_add_three, test_add_four))
+    print("Time:", time)
+    time = 0
+
     print(add_and_shift(test_add_three, test_add_four))
+    print("Time:", time)
+    time = 0
 
     print("\nMatrix of summands:", test_add_five, "*", test_add_six)
     print(iterative(test_add_five, test_add_six))
+    print("Time:", time)
+    time = 0
+
     print(add_and_shift(test_add_five, test_add_six))
+    print("Time:", time)
+    time = 0
 
     print("\nMatrix of summands:", test_add_seven, "*", test_add_eight)
     print(iterative(test_add_seven, test_add_eight))
+    print("Time:", time)
+    time = 0
+
     print(add_and_shift(test_add_seven, test_add_eight))
+    print("Time:", time)
+    time = 0
