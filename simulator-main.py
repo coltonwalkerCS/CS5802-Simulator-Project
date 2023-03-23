@@ -286,8 +286,8 @@ def shiftAQ(AQ: List[int]) -> List[int]:
         AQ[i] = AQ[i - 1]
     AQ[0] = 0
 
-    # global time
-    # time += 3
+    global time
+    time += 3
     return AQ
 
 
@@ -298,10 +298,10 @@ def add_B_to_AQ(AQ, B):
     sizeB = len(B)
 
     NEW_AQ = AQ[:]
+
     # Carry Bit
     carryBit = 0
-
-    # Fast adder implementation
+    XOR_Num = 0
     for i in range(sizeB):
         bitAQ = NEW_AQ[sizeAQ - sizeB - i]
         bitB = B[sizeB - i - 1]
@@ -313,6 +313,8 @@ def add_B_to_AQ(AQ, B):
         resultBitFinal = XOR(resultBit, carryBit)
         carryTwo = AND(resultBit, carryBit)
 
+        XOR_Num += 2
+
         # Set result into AQ
         NEW_AQ[sizeAQ - sizeB - i] = resultBitFinal
 
@@ -323,13 +325,8 @@ def add_B_to_AQ(AQ, B):
         carryBit += carryTwo
 
     NEW_AQ[0] = carryBit
-    numFA = int(math.ceil(sizeB)/4)
-    if numFA != 1:
-        fastAdderTime = 10 + ((numFA - 1) * 2)
-    else:
-        fastAdderTime = 10
 
-    return NEW_AQ, fastAdderTime
+    return NEW_AQ, XOR_Num
 
 
 # Add and shift function
@@ -339,7 +336,6 @@ def add_B_to_AQ(AQ, B):
 # inputs together
 def add_and_shift(multiplier, multiplicand):
     global time
-
     # Finds the size AQ will be (+1 for carry bit)
     size_AQ = (2 * max(len(multiplier), len(multiplicand))) + 1
 
@@ -483,7 +479,8 @@ def base(A: List[int], B: List[int], n: int) -> List[int]:
     b: int = A[1]
     c: int = B[0]
     d: int = B[1]
-    carry: int = 0
+    carry_one: int = 0
+    carry_two: int = 0
     adbc_carry: int = 0
 
     ac: List[int] = []
@@ -517,10 +514,27 @@ def base(A: List[int], B: List[int], n: int) -> List[int]:
     bd.append(0)
     bd.append(AND(b, d))
 
-    to_return, carry = FastAdderCarrySelect(ac, adbc, 0)
-    to_return, carry = FastAdderCarrySelect(to_return, bd, carry)
+    to_return, carry_one = FastAdderCarrySelect(ac, adbc, 0)
+    to_return, carry_two = FastAdderCarrySelect(to_return, bd, carry_one)
 
-    return to_return, carry
+    # if carry_one and carry_two:
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 1)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    # elif carry_one or carry_one:
+    #     to_return.insert(0, 1)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    # else:
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+
+    return to_return, carry_two
+
 
 
 def it(A: List[int], B: List[int], n: int) -> List[int]:
@@ -533,7 +547,7 @@ def it(A: List[int], B: List[int], n: int) -> List[int]:
     #         A.insert(0, 0)
     #         B.insert(0, 0)
     #         n += 1
-
+    
     return itMain(A, B, n)
 
 
@@ -565,11 +579,10 @@ def itMain(A: List[int], B: List[int], n: int) -> List[int]:
 
     # Fast adder
 
-    AC_BD, AC_BD_Carry = FastAdderCarrySelect(AC, BD, 0)
+    AC_BD, ACBD_Carry = FastAdderCarrySelect(AC, BD, 0)
     # Make sure to implement w/ carry
 
-    return FastAdderCarrySelect(AC_BD, AD_BC, AC_BD_Carry)
-
+    return FastAdderCarrySelect(AC_BD, AD_BC, ACBD_Carry)
 
 def summandMatrix(A: List[int], B: List[int]) -> List[List[int]]:
     num_length = len(A)
@@ -908,24 +921,6 @@ if __name__ == "__main__":
     print("\nIterative")
     for multPair in testData:
         time = 0
-        one = ''
-        two = ''
-        for ele in multPair[0]:
-            one += str(ele)
-        for ele in multPair[1]:
-            two += str(ele)
-        print(one, '*', two)
-        resultOne = iterative(multPair[0], multPair[1])
-        resOne = ''
-        for ele in resultOne:
-            resOne += str(ele)
-
-        resultTwo, carry = it(multPair[0], multPair[1], len(multPair[0]))
-        resultTwo.insert(carry, 0)
-        resTwo = ''
-        for ele in resultTwo:
-            resTwo += str(ele)
-
-        print('iterative() =', resOne, ":", binList_to_Hex(resultOne))
-        print('it() =', resTwo, ":", binList_to_Hex(resultTwo))
+        print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
+        print(multPair[0], '+', multPair[1], '=', it(multPair[0], multPair[1], len(multPair[0])))
         print('time of operation: ', time, end='\n')
