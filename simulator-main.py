@@ -452,7 +452,8 @@ def base(A: List[int], B: List[int], n: int) -> List[int]:
     b: int = A[1]
     c: int = B[0]
     d: int = B[1]
-    carry: int = 0
+    carry_one: int = 0
+    carry_two: int = 0
     adbc_carry: int = 0
 
     ac: List[int] = []
@@ -486,10 +487,26 @@ def base(A: List[int], B: List[int], n: int) -> List[int]:
     bd.append(0)
     bd.append(AND(b, d))
 
-    to_return, carry = FastAdderCarrySelect(ac, adbc, 0)
-    to_return, carry = FastAdderCarrySelect(to_return, bd, carry)
+    to_return, carry_one = FastAdderCarrySelect(ac, adbc, 0)
+    to_return, carry_two = FastAdderCarrySelect(to_return, bd, carry_one)
 
-    return to_return, carry
+    # if carry_one and carry_two:
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 1)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    # elif carry_one or carry_one:
+    #     to_return.insert(0, 1)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    # else:
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+    #     to_return.insert(0, 0)
+
+    return to_return, carry_two
 
 
 
@@ -521,6 +538,7 @@ def itMain(A: List[int], B: List[int], n: int) -> List[int]:
     BC, BC_Carry = itMain(A[n_div_two:n], B[0:n_div_two], n_div_two)
 
     AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
+    AD_BC.insert(0, ADBC_Carry)
     AD_BC = SHIFTL(AD_BC, n // 2) # Shift
 
     while len(AD_BC) < len(AC):
@@ -534,10 +552,10 @@ def itMain(A: List[int], B: List[int], n: int) -> List[int]:
 
     # Fast adder
 
-    AC_BD, AC_BD_Carry = FastAdderCarrySelect(AC, BD, 0)
+    AC_BD, ACBD_Carry = FastAdderCarrySelect(AC, BD, 0)
     # Make sure to implement w/ carry
 
-    return FastAdderCarrySelect(AC_BD, AD_BC, AC_BD_Carry)
+    return FastAdderCarrySelect(AC_BD, AD_BC, ACBD_Carry)
 
 def summandMatrix(A: List[int], B: List[int]) -> List[List[int]]:
     num_length = len(A)
@@ -784,6 +802,6 @@ if __name__ == "__main__":
     print("\nIterative")
     for multPair in testData:
         time = 0
-        print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
+        # print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
         print(multPair[0], '+', multPair[1], '=', it(multPair[0], multPair[1], len(multPair[0])))
         print('time of operation: ', time, end='\n')
