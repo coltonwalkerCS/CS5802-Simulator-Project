@@ -1,5 +1,6 @@
 # Add and Shift helper function
 import math
+import matplotlib.pyplot as plt
 from typing import List, Literal
 time = 0
 
@@ -780,14 +781,30 @@ if __name__ == "__main__":
     # print(add_and_shift(test_add_seven, test_add_eight))
     # print("Time:", time)
     # time = 0
-
+    X_add_and_shift_binaryLen = []
+    Y_add_and_shift_optime = []
     for multPair in testData:
         time = 0
-        print(multPair[0], '+', multPair[1])
+        one = ''
+        two = ''
+        for ele in multPair[0]:
+            one += str(ele)
+        for ele in multPair[1]:
+            two += str(ele)
+        print(one, '+', two)
         result = add_and_shift(multPair[0], multPair[1])
-        print('=', result, ":", binList_to_Hex(result))
-        print('time of operation: ', time, end='\n')
+        res = ''
+        for ele in result:
+            res += str(ele)
 
+        print('=', res, ":", binList_to_Hex(result))
+        print('time of operation: ', time, end='\n')
+        X_add_and_shift_binaryLen.append(len(multPair[0]))
+        Y_add_and_shift_optime.append(time)
+
+    plt.scatter(X_add_and_shift_binaryLen, Y_add_and_shift_optime, c="blue")
+    # plt.scatter([4, 6, 8, 12], [60, 105, 125, 150], c="red")
+    plt.show()
     # for multPair in testData:
     #     time = 0
     #     print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
