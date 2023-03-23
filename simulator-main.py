@@ -23,6 +23,27 @@ I.E. global_time += xDT
 
 
 """
+------------ RAND FUNCS ------------
+"""
+
+
+# Input: A binary list of 1's and 0's
+# Output: hexadecimal number type(string)
+def binList_to_Hex(binList):
+
+    for i in range(len(binList)):
+        binList[i] = str(binList[i])
+
+    binStr = ''.join(binList)
+    num = int(binStr, 2)
+
+    # convert int to hexadecimal
+    hex_num = format(num, 'x')
+    hex_num = hex_num.upper()
+    return hex_num
+
+
+"""
 -------- BASIC LOGIC GATE & F.A. OPERATIONS --------
 """
 
@@ -31,8 +52,8 @@ I.E. global_time += xDT
 # Input: Two Bits
 # Output: 1 or 0
 def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 1
+    # global time
+    # time += 1
     if bitOne == 1 and bitTwo == 1:
         return 1
     else:
@@ -43,8 +64,8 @@ def AND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 1
+    # global time
+    # time += 1
     if bitOne == 1 and bitTwo == 1:
         return 0
     else:
@@ -55,8 +76,8 @@ def NAND(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 1
+    # global time
+    # time += 1
     if bitOne or bitTwo:
         return 1
     else:
@@ -67,8 +88,8 @@ def OR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
 # Input: Two Bits
 # Output: 1 or 0
 def XOR(bitOne: int, bitTwo: int) -> Literal[0, 1]:
-    global time
-    time += 2
+    # global time
+    # time += 2
     return AND(OR(bitOne, bitTwo), NAND(bitOne, bitTwo))
 
 
@@ -264,8 +285,8 @@ def shiftAQ(AQ: List[int]) -> List[int]:
         AQ[i] = AQ[i - 1]
     AQ[0] = 0
 
-    global time
-    time += 3
+    # global time
+    # time += 3
     return AQ
 
 
@@ -313,6 +334,8 @@ def add_B_to_AQ(AQ, B):
 # Output: Result of multiplying the two
 # inputs together
 def add_and_shift(multiplier, multiplicand):
+    global time
+
     # Finds the size AQ will be (+1 for carry bit)
     size_AQ = (2 * max(len(multiplier), len(multiplicand))) + 1
 
@@ -338,7 +361,12 @@ def add_and_shift(multiplier, multiplicand):
             AQ = shiftAQ(AQ)
             num_Shift += 1
 
-    return AQ, num_XOR, num_Shift
+    for _ in range(num_XOR):
+        time += 1
+    for _ in range(num_Shift):
+        time += 3
+
+    return AQ
 
 
 """
@@ -347,65 +375,65 @@ def add_and_shift(multiplier, multiplicand):
 
 
 # Initialize the starting registers to be 2^n
-def iterativeMethodPrep(A, B):
-    # Set n (should be of 2^x)
-    n = math.ceil(math.log(max(len(A), len(B)), 2))
-    lenIter = int(math.pow(2, n))
-
-    # Convert A and B into n bit list
-    A_Init = [0] * (lenIter - len(A)) + A[:]
-    B_Init = [0] * (lenIter - len(B)) + B[:]
-
-    return A_Init, B_Init, n
-
-
-# Base case for iterative method (4-bits)
-def iterativeBase(A, B):
-    # 2^n (ac) operation
-    ac_0 = AND(A[2], B[2])
-    ac_1, carryAC1 = XOR(AND(A[3], B[2]), AND(A[2], B[3])), AND(AND(A[3], B[2]), AND(A[2], B[3]))
-    ac_2, carryAC2 = XOR(AND(A[3], B[3]), carryAC1), AND(AND(A[3], B[3]), carryAC1)
-    ac_3 = carryAC2
-
-    AC = [ac_3, ac_2, ac_1, ac_0]
-
-    # 2 ^n/2 (ad + bc)
-    ad_0 = AND(A[2], B[0])
-    ad_1, carryAD1 = XOR(AND(A[3], B[0]), AND(A[2], B[1])), AND(AND(A[3], B[0]), AND(A[2], B[1]))
-    ad_2, carryAD2 = XOR(AND(A[3], B[1]), carryAD1), AND(AND(A[3], B[1]), carryAD1)
-    ad_3 = carryAD2
-
-    AD = [ad_3, ad_2, ad_1, ad_0]
-
-    bc_0 = AND(A[0], B[2])
-    bc_1, carryBC1 = XOR(AND(A[1], B[2]), AND(A[0], B[3])), AND(AND(A[1], B[2]), AND(A[0], B[3]))
-    bc_2, carryBC2 = XOR(AND(A[1], B[3]), carryBC1), AND(AND(A[1], B[3]), carryBC1)
-    bc_3 = carryBC2
-
-    BC = [bc_3, bc_2, bc_1, bc_0]
-
-    # + bd
-    bd_0 = AND(A[0], B[0])
-    bd_1, carryBD1 = XOR(AND(A[1], B[0]), AND(A[0], B[1])), AND(AND(A[1], B[0]), AND(A[0], B[1]))
-    bd_2, carryBD2 = XOR(AND(A[1], B[1]), carryBD1), AND(AND(A[1], B[1]), carryBD1)
-    bd_3 = carryBD2
-
-    BD = [bd_3, bd_2, bd_1, bd_0]
-
-    # ADD BC + AD
-    # with fast addition Carry Select Adder
-    BC_AD, carryBCAD = FastAdderCarrySelect(BC, AD, 0)
-    # 2^n/2 (add two 00)
-    BC_AD = BC_AD + [0, 0]
-    BC_AD = [carryBCAD] + BC_AD
-    # Fast addition Carry Select Adder
-    for _ in range(8-len(BC_AD)):
-        BC_AD.insert(0, 0)
-
-    # Put AC, BD in same register
-    AC_BD = AC + BD
-    # Add them together and return the result
-    return FastAdderCarrySelect(AC_BD, BC_AD, 0)
+# def iterativeMethodPrep(A, B):
+#     # Set n (should be of 2^x)
+#     n = math.ceil(math.log(max(len(A), len(B)), 2))
+#     lenIter = int(math.pow(2, n))
+#
+#     # Convert A and B into n bit list
+#     A_Init = [0] * (lenIter - len(A)) + A[:]
+#     B_Init = [0] * (lenIter - len(B)) + B[:]
+#
+#     return A_Init, B_Init, n
+#
+#
+# # Base case for iterative method (4-bits)
+# def iterativeBase(A, B):
+#     # 2^n (ac) operation
+#     ac_0 = AND(A[2], B[2])
+#     ac_1, carryAC1 = XOR(AND(A[3], B[2]), AND(A[2], B[3])), AND(AND(A[3], B[2]), AND(A[2], B[3]))
+#     ac_2, carryAC2 = XOR(AND(A[3], B[3]), carryAC1), AND(AND(A[3], B[3]), carryAC1)
+#     ac_3 = carryAC2
+#
+#     AC = [ac_3, ac_2, ac_1, ac_0]
+#
+#     # 2 ^n/2 (ad + bc)
+#     ad_0 = AND(A[2], B[0])
+#     ad_1, carryAD1 = XOR(AND(A[3], B[0]), AND(A[2], B[1])), AND(AND(A[3], B[0]), AND(A[2], B[1]))
+#     ad_2, carryAD2 = XOR(AND(A[3], B[1]), carryAD1), AND(AND(A[3], B[1]), carryAD1)
+#     ad_3 = carryAD2
+#
+#     AD = [ad_3, ad_2, ad_1, ad_0]
+#
+#     bc_0 = AND(A[0], B[2])
+#     bc_1, carryBC1 = XOR(AND(A[1], B[2]), AND(A[0], B[3])), AND(AND(A[1], B[2]), AND(A[0], B[3]))
+#     bc_2, carryBC2 = XOR(AND(A[1], B[3]), carryBC1), AND(AND(A[1], B[3]), carryBC1)
+#     bc_3 = carryBC2
+#
+#     BC = [bc_3, bc_2, bc_1, bc_0]
+#
+#     # + bd
+#     bd_0 = AND(A[0], B[0])
+#     bd_1, carryBD1 = XOR(AND(A[1], B[0]), AND(A[0], B[1])), AND(AND(A[1], B[0]), AND(A[0], B[1]))
+#     bd_2, carryBD2 = XOR(AND(A[1], B[1]), carryBD1), AND(AND(A[1], B[1]), carryBD1)
+#     bd_3 = carryBD2
+#
+#     BD = [bd_3, bd_2, bd_1, bd_0]
+#
+#     # ADD BC + AD
+#     # with fast addition Carry Select Adder
+#     BC_AD, carryBCAD = FastAdderCarrySelect(BC, AD, 0)
+#     # 2^n/2 (add two 00)
+#     BC_AD = BC_AD + [0, 0]
+#     BC_AD = [carryBCAD] + BC_AD
+#     # Fast addition Carry Select Adder
+#     for _ in range(8-len(BC_AD)):
+#         BC_AD.insert(0, 0)
+#
+#     # Put AC, BD in same register
+#     AC_BD = AC + BD
+#     # Add them together and return the result
+#     return FastAdderCarrySelect(AC_BD, BC_AD, 0)
 
 
 # NEED TO FIX:
@@ -416,36 +444,36 @@ def iterativeBase(A, B):
 # Using X * Y = 2^n(ac) + 2^(n/2)(ad + bc) + bd, we can simplify the algorithm
 # 2^nX is the same as shifting a binary number, X, n spaces to the left
 # Therefore, find AD, BC, BD, and AC and follow the equation 
-def iterativeMethod(A, B, n):
-    # Base case
-    if n == 4:
-        return iterativeBase(A, B)
-    else:
-        # Recursive call
-        n_div_two = int(n / 2)
-        # 2^n iter(ac, n/2)
-        AC, AC_Carry = iterativeMethod(A[0:n_div_two], B[0:n_div_two], n_div_two)
-
-        # 2^n/2 (iter(ad, n/2) + iter(bc, n/2)
-        AD, AD_Carry = iterativeMethod(A[0:n_div_two], B[n_div_two:n], n_div_two)
-        BC, BC_Carry = iterativeMethod(A[n_div_two:n], B[0:n_div_two], n_div_two)
-
-        # Take care of AD and BC Carry
-        AD = [0, 0, 0] + [AD_Carry] + AD
-        BC = [0, 0, 0] + [BC_Carry] + BC
-
-        AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
-        AD_BC = AD_BC + [0, 0, 0, 0]
-
-        # + iter(bd, n/2)
-        BD, BD_Carry = iterativeMethod(A[n_div_two:n], B[n_div_two:n], n_div_two)
-
-        # Fast adder
-
-        AC_BD = AC + BD
-        # Make sure to implement w/ carry
-
-        return FastAdderCarrySelect(AC_BD, AD_BC, 0)
+# def iterativeMethod(A, B, n):
+#     # Base case
+#     if n == 4:
+#         return iterativeBase(A, B)
+#     else:
+#         # Recursive call
+#         n_div_two = int(n / 2)
+#         # 2^n iter(ac, n/2)
+#         AC, AC_Carry = iterativeMethod(A[0:n_div_two], B[0:n_div_two], n_div_two)
+#
+#         # 2^n/2 (iter(ad, n/2) + iter(bc, n/2)
+#         AD, AD_Carry = iterativeMethod(A[0:n_div_two], B[n_div_two:n], n_div_two)
+#         BC, BC_Carry = iterativeMethod(A[n_div_two:n], B[0:n_div_two], n_div_two)
+#
+#         # Take care of AD and BC Carry
+#         AD = [0, 0, 0] + [AD_Carry] + AD
+#         BC = [0, 0, 0] + [BC_Carry] + BC
+#
+#         AD_BC, ADBC_Carry = FastAdderCarrySelect(AD, BC, 0)
+#         AD_BC = AD_BC + [0, 0, 0, 0]
+#
+#         # + iter(bd, n/2)
+#         BD, BD_Carry = iterativeMethod(A[n_div_two:n], B[n_div_two:n], n_div_two)
+#
+#         # Fast adder
+#
+#         AC_BD = AC + BD
+#         # Make sure to implement w/ carry
+#
+#         return FastAdderCarrySelect(AC_BD, AD_BC, 0)
 
 
 def summandMatrix(A: List[int], B: List[int]) -> List[List[int]]:
@@ -755,10 +783,13 @@ if __name__ == "__main__":
 
     for multPair in testData:
         time = 0
-        print(multPair[0], '+', multPair[1], '=', add_and_shift(multPair[0], multPair[1]))
+        print(multPair[0], '+', multPair[1])
+        result = add_and_shift(multPair[0], multPair[1])
+        print('=', result, ":", binList_to_Hex(result))
         print('time of operation: ', time, end='\n')
 
-    for multPair in testData:
-        time = 0
-        print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
-        print('time of operation: ', time, end='\n')
+    # for multPair in testData:
+    #     time = 0
+    #     print(multPair[0], '+', multPair[1], '=', iterative(multPair[0], multPair[1]))
+    #     print('time of operation: ', time, end='\n')
+
